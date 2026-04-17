@@ -16,7 +16,10 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 // Middleware
-app.use(cors());
+app.use(cors({
+    origin: process.env.ALLOWED_ORIGIN || 'http://localhost:5173',
+    credentials: true
+}));;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
