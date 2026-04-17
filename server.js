@@ -16,10 +16,17 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 // Middleware
+const allowedOrigins = (process.env.ALLOWED_ORIGIN || 'http://localhost:5173').split(',');
 app.use(cors({
-    origin: process.env.ALLOWED_ORIGIN || 'http://localhost:5173',
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true
-}));;
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -42,9 +49,4 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 5000;
 
 if (require.main === module) {
-    app.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
-    });
-}
-
-module.exports = app;
+    app.listen(PORT, () => 
