@@ -5,11 +5,12 @@ const streamifier = require('streamifier');
 // Helper function to upload to Cloudinary
 const uploadToCloudinary = (buffer, folder, resourceType = 'auto', originalName) => {
     return new Promise((resolve, reject) => {
-        const options = { folder, resource_type: resourceType };
+        const options = { folder, resource_type: resourceType, access_mode: 'public' };
         
         // If an original name is provided, use it as the public ID so the file URL preserves the exact name
+        // Strip file extension to avoid double extensions (e.g. .pdf.pdf)
         if (originalName) {
-            options.public_id = originalName;
+            options.public_id = originalName.replace(/\.[^/.]+$/, '');
         }
 
         const stream = cloudinary.uploader.upload_stream(
@@ -99,6 +100,7 @@ exports.uploadResume = async (req, res) => {
         const sanitizedDataName = originalName.replace(/[?&#\\%<>]/g, '_');
         
         const result = await uploadToCloudinary(req.file.buffer, 'portfolio/resume', 'image', sanitizedDataName);
+        console.log('Cloudinary upload result:', JSON.stringify({ public_id: result.public_id, secure_url: result.secure_url, resource_type: result.resource_type }));
 
         // Save to database
         const resume = await Resume.create({
