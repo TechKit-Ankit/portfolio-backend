@@ -88,7 +88,7 @@ exports.uploadResume = async (req, res) => {
         // If exists, delete old files from Cloudinary and DB
         for (const existingResume of existingResumes) {
             if (existingResume.public_id) {
-                await cloudinary.uploader.destroy(existingResume.public_id, { resource_type: 'image' }).catch(() => {});
+                await cloudinary.uploader.destroy(existingResume.public_id, { resource_type: 'raw' }).catch(() => {});
             }
             await Resume.findByIdAndDelete(existingResume._id);
         }
@@ -99,7 +99,7 @@ exports.uploadResume = async (req, res) => {
         // Sanitize the filename for Cloudinary public_id (remove ? & # \ % < > characters)
         const sanitizedDataName = originalName.replace(/[?&#\\%<>]/g, '_');
         
-        const result = await uploadToCloudinary(req.file.buffer, 'portfolio/resume', 'image', sanitizedDataName);
+        const result = await uploadToCloudinary(req.file.buffer, 'portfolio/resume', 'raw', sanitizedDataName);
         console.log('Cloudinary upload result:', JSON.stringify({ public_id: result.public_id, secure_url: result.secure_url, resource_type: result.resource_type }));
 
         // Save to database
@@ -127,7 +127,7 @@ exports.deleteResume = async (req, res) => {
         // Delete all dangling resumes from Cloudinary and DB
         for (const resume of resumes) {
             if (resume.public_id) {
-                await cloudinary.uploader.destroy(resume.public_id, { resource_type: 'image' }).catch(() => {});
+                await cloudinary.uploader.destroy(resume.public_id, { resource_type: 'raw' }).catch(() => {});
             }
             await Resume.findByIdAndDelete(resume._id);
         }
