@@ -98,7 +98,7 @@ exports.uploadResume = async (req, res) => {
         // Sanitize the filename for Cloudinary public_id (remove ? & # \ % < > characters)
         const sanitizedDataName = originalName.replace(/[?&#\\%<>]/g, '_');
         
-        const result = await uploadToCloudinary(req.file.buffer, 'portfolio/resume', 'image', sanitizedDataName);
+        const result = await uploadToCloudinary(req.file.buffer, 'portfolio/resume', 'auto', sanitizedDataName);
 
         // Save to database
         const resume = await Resume.create({
